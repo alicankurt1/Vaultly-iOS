@@ -7,7 +7,9 @@
 
 import Foundation
 
-struct Account: Hashable {
+// Diffable snapshot Section/Item tiplerinin Sendable olmasını istiyor;
+// bu model UI thread'ine bağımlı olmadığı için MainActor izolasyonundan çıkarılıyor
+nonisolated struct Account: Hashable, Sendable {
     let id: UUID
     let name: String
     let iban: String

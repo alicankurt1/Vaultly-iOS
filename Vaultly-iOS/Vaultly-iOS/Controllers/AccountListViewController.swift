@@ -9,8 +9,9 @@ import UIKit
 
 final class AccountListViewController: UIViewController {
 
-    // Diffable data source tek bölüm kullandığı için enum ile temsil ediliyor
-    private enum Section {
+    // Diffable data source tek bölüm kullandığı için enum ile temsil ediliyor;
+    // nonisolated olması Sendable şartını sağlıyor (bkz. Account.swift)
+    private nonisolated enum Section: Hashable, Sendable {
         case main
     }
 
