@@ -7,8 +7,8 @@ Fazların detayı ve kabul kriterleri için [ROADMAP.md](./ROADMAP.md) dosyasın
 
 | Faz | Pattern | Branch | Durum |
 | --- | --- | --- | --- |
-| 1 | Programatik UI + Auto Layout | `pattern/programmatic-ui` | ⬜ Planlandı |
-| 2 | Compositional Layout + Diffable Data Source | `pattern/diffable-datasource` | ⬜ Planlandı |
+| 1 | Programatik UI + Auto Layout | `pattern/programmatic-ui` | ✅ Tamamlandı |
+| 2 | Compositional Layout + Diffable Data Source | `pattern/diffable-datasource` | ✅ Tamamlandı |
 | 3 | MVVM'e Ayırma | `pattern/mvvm` | ⬜ Planlandı |
 | 4 | Protokol Tabanlı Dependency Injection | `pattern/dependency-injection` | ⬜ Planlandı |
 | 5 | Coordinator Pattern | `pattern/coordinator` | ⬜ Planlandı |

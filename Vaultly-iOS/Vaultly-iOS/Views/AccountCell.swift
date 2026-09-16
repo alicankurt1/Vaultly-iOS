@@ -7,9 +7,7 @@
 
 import UIKit
 
-final class AccountCell: UITableViewCell {
-
-    static let reuseIdentifier = "AccountCell"
+final class AccountCell: UICollectionViewCell {
 
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -36,8 +34,8 @@ final class AccountCell: UITableViewCell {
     }()
 
     // Hücre kod ile oluşturulduğunda layout'u kurar
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setUpLayout()
     }
 
@@ -55,6 +53,10 @@ final class AccountCell: UITableViewCell {
 
     // Etiketleri NSLayoutConstraint ile contentView'a yerleştirir
     private func setUpLayout() {
+        backgroundColor = .secondarySystemGroupedBackground
+        layer.cornerRadius = 12
+        layer.cornerCurve = .continuous
+
         let textStack = UIStackView(arrangedSubviews: [nameLabel, ibanLabel])
         textStack.axis = .vertical
         textStack.spacing = 4
