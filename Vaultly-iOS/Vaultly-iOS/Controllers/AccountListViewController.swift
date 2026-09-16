@@ -57,25 +57,38 @@ final class AccountListViewController: UIViewController {
         applySnapshot(animatingDifferences: false)
     }
 
-    // Tek sütunlu, tahmini yükseklikli kartlardan oluşan compositional layout kurar
+    // Tek sütunlu, tahmini yükseklikli kartlardan oluşan compositional layout kurar.
+    // Sola kaydırma aksiyonları yalnızca list-tabanlı section'larda otomatik çalıştığı
+    // için NSCollectionLayoutSection.list(using:) kullanılıyor, kart boşlukları/inset'leri
+    // üzerine yeniden uygulanıyor.
     private func makeLayout() -> UICollectionViewCompositionalLayout {
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(72)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        UICollectionViewCompositionalLayout { [weak self] _, layoutEnvironment in
+            var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
+            configuration.showsSeparators = false
+            configuration.backgroundColor = .clear
+            configuration.trailingSwipeActionsConfigurationProvider = { indexPath in
+                self?.trailingSwipeActionsConfiguration(at: indexPath)
+            }
 
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(72)
-        )
-        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+            let section = NSCollectionLayoutSection.list(using: configuration, layoutEnvironment: layoutEnvironment)
+            section.interGroupSpacing = 12
+            section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+            return section
+        }
+    }
 
-        let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 12
-        section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
-
-        return UICollectionViewCompositionalLayout(section: section)
+    // Sola kaydırınca çıkacak "Sil" aksiyonunu, hesabı silip animasyonlu snapshot güncelleyerek kurar
+    private func trailingSwipeActionsConfiguration(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Sil") { [weak self] _, _, completion in
+            guard let self, let account = self.dataSource.itemIdentifier(for: indexPath) else {
+                completion(false)
+                return
+            }
+            self.accounts.removeAll { $0.id == account.id }
+            self.applySnapshot()
+            completion(true)
+        }
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 
     // Mevcut accounts dizisini diffable snapshot'a çevirip uygular
@@ -97,19 +110,5 @@ extension AccountListViewController: UICollectionViewDelegate {
     // Seçimi görsel olarak temizler (detay ekranı Faz 5'te eklenecek)
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-    }
-
-    // Sola kaydırınca hesabı silip animasyonlu snapshot günceller
-    func collectionView(_ collectionView: UICollectionView, trailingSwipeActionsConfigurationForItemAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Sil") { [weak self] _, _, completion in
-            guard let self, let account = self.dataSource.itemIdentifier(for: indexPath) else {
-                completion(false)
-                return
-            }
-            self.accounts.removeAll { $0.id == account.id }
-            self.applySnapshot()
-            completion(true)
-        }
-        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 }
