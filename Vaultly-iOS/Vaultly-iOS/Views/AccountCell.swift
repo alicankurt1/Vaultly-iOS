@@ -35,21 +35,25 @@ final class AccountCell: UITableViewCell {
         return label
     }()
 
+    // Hücre kod ile oluşturulduğunda layout'u kurar
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setUpLayout()
     }
 
+    // Storyboard/xib üzerinden init desteklenmiyor
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // Hücredeki etiketleri verilen hesaba göre doldurur
     func configure(with account: Account) {
         nameLabel.text = account.name
         ibanLabel.text = account.iban
         balanceLabel.text = account.formattedBalance
     }
 
+    // Etiketleri NSLayoutConstraint ile contentView'a yerleştirir
     private func setUpLayout() {
         let textStack = UIStackView(arrangedSubviews: [nameLabel, ibanLabel])
         textStack.axis = .vertical

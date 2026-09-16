@@ -18,6 +18,7 @@ final class AccountListViewController: UIViewController {
         return tableView
     }()
 
+    // Tablo görünümünü kurar ve mock hesap verisiyle ekranı hazırlar
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Hesaplarım"
@@ -37,10 +38,12 @@ final class AccountListViewController: UIViewController {
 }
 
 extension AccountListViewController: UITableViewDataSource {
+    // Listelenecek hesap sayısını döner
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         accounts.count
     }
 
+    // İlgili satır için hücreyi hesap verisiyle doldurup döner
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: AccountCell.reuseIdentifier, for: indexPath) as? AccountCell else {
             return UITableViewCell()
@@ -52,6 +55,7 @@ extension AccountListViewController: UITableViewDataSource {
 }
 
 extension AccountListViewController: UITableViewDelegate {
+    // Satır seçimini görsel olarak temizler (detay ekranı Faz 5'te eklenecek)
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
