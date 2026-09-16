@@ -1,0 +1,72 @@
+//
+//  AccountCell.swift
+//  Vaultly-iOS
+//
+//  Created by Alicank on 16.09.2026.
+//
+
+import UIKit
+
+final class AccountCell: UITableViewCell {
+
+    static let reuseIdentifier = "AccountCell"
+
+    private let nameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let ibanLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let balanceLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.textAlignment = .right
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setUpLayout()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(with account: Account) {
+        nameLabel.text = account.name
+        ibanLabel.text = account.iban
+        balanceLabel.text = account.formattedBalance
+    }
+
+    private func setUpLayout() {
+        let textStack = UIStackView(arrangedSubviews: [nameLabel, ibanLabel])
+        textStack.axis = .vertical
+        textStack.spacing = 4
+        textStack.translatesAutoresizingMaskIntoConstraints = false
+
+        contentView.addSubview(textStack)
+        contentView.addSubview(balanceLabel)
+
+        NSLayoutConstraint.activate([
+            textStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            textStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            textStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
+
+            balanceLabel.leadingAnchor.constraint(greaterThanOrEqualTo: textStack.trailingAnchor, constant: 8),
+            balanceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            balanceLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+        ])
+    }
+}
