@@ -15,7 +15,7 @@ final class AccountListViewController: UIViewController {
         case main
     }
 
-    private var accounts = Account.mockAccounts
+    private let viewModel = AccountListViewModel()
 
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeLayout())
@@ -35,7 +35,7 @@ final class AccountListViewController: UIViewController {
         collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: account)
     }
 
-    // Ekranı kurar, collection view'ı yerleştirir ve ilk snapshot'ı uygular
+    // Ekranı kurar, view model'e bağlanır ve ilk veriyi yükletir
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Hesaplarım"
@@ -43,7 +43,7 @@ final class AccountListViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
-            action: #selector(addMockAccountTapped)
+            action: #selector(addAccountTapped)
         )
 
         view.addSubview(collectionView)
@@ -54,7 +54,15 @@ final class AccountListViewController: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
-        applySnapshot(animatingDifferences: false)
+        bindViewModel()
+        viewModel.loadAccounts()
+    }
+
+    // View model'in hesap listesi değiştikçe ekranı günceller
+    private func bindViewModel() {
+        viewModel.onAccountsChanged = { [weak self] accounts in
+            self?.applySnapshot(with: accounts)
+        }
     }
 
     // Tek sütunlu, tahmini yükseklikli kartlardan oluşan compositional layout kurar.
@@ -77,32 +85,31 @@ final class AccountListViewController: UIViewController {
         }
     }
 
-    // Sola kaydırınca çıkacak "Sil" aksiyonunu, hesabı silip animasyonlu snapshot güncelleyerek kurar
+    // Sola kaydırınca çıkacak "Sil" aksiyonunu kurar; silme kararını view model verir
     private func trailingSwipeActionsConfiguration(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Sil") { [weak self] _, _, completion in
             guard let self, let account = self.dataSource.itemIdentifier(for: indexPath) else {
                 completion(false)
                 return
             }
-            self.accounts.removeAll { $0.id == account.id }
-            self.applySnapshot()
+            self.viewModel.deleteAccount(id: account.id)
             completion(true)
         }
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 
-    // Mevcut accounts dizisini diffable snapshot'a çevirip uygular
-    private func applySnapshot(animatingDifferences: Bool = true) {
+    // Verilen hesap listesini diffable snapshot'a çevirip uygular
+    private func applySnapshot(with accounts: [Account]) {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Account>()
         snapshot.appendSections([.main])
         snapshot.appendItems(accounts, toSection: .main)
-        dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+        let isInitialLoad = dataSource.snapshot().numberOfSections == 0
+        dataSource.apply(snapshot, animatingDifferences: !isInitialLoad)
     }
 
-    // Listeye rastgele bir mock hesap ekleyip animasyonlu snapshot günceller
-    @objc private func addMockAccountTapped() {
-        accounts.append(.randomMockAccount())
-        applySnapshot()
+    // Rastgele bir mock hesap eklenmesini view model'den ister
+    @objc private func addAccountTapped() {
+        viewModel.addRandomAccount()
     }
 }
 
