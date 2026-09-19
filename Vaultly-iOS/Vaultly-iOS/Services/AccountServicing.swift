@@ -13,8 +13,8 @@ protocol AccountServicing {
     func fetchAccounts() -> [Account]
 }
 
-// Şimdilik mock veriyle çalışan, gerçek servisin yerini tutan implementasyon
-struct MockAccountService: AccountServicing {
+// Şimdilik örnek/gösterim verisiyle çalışan, gerçek servisin yerini tutan implementasyon
+struct SampleAccountService: AccountServicing {
     func fetchAccounts() -> [Account] {
         Account.mockAccounts
     }

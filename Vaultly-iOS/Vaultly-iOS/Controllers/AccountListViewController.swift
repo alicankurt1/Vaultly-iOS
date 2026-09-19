@@ -17,7 +17,13 @@ final class AccountListViewController: UIViewController {
 
     private let viewModel: AccountListViewModel
 
-    // Composition root (SceneDelegate) view model'i buradan enjekte eder;
+    // Hücre seçimini Coordinator'a bildirir; VC kendi push/present çağırmaz
+    var onAccountSelected: ((Account) -> Void)?
+
+    // Profil butonuna basıldığını Coordinator'a bildirir; ekranın nasıl açılacağına (modal/push) VC karışmaz
+    var onProfileTapped: (() -> Void)?
+
+    // Composition root (AppCoordinator) view model'i buradan enjekte eder;
     // default değer sadece hızlı deneme/önizleme için var
     init(viewModel: AccountListViewModel = AccountListViewModel()) {
         self.viewModel = viewModel
@@ -56,6 +62,12 @@ final class AccountListViewController: UIViewController {
             barButtonSystemItem: .add,
             target: self,
             action: #selector(addAccountTapped)
+        )
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "person.circle"),
+            style: .plain,
+            target: self,
+            action: #selector(profileTapped)
         )
 
         view.addSubview(collectionView)
@@ -123,11 +135,18 @@ final class AccountListViewController: UIViewController {
     @objc private func addAccountTapped() {
         viewModel.addRandomAccount()
     }
+
+    // Profil ekranının nasıl açılacağı (modal + ayrı Coordinator) Coordinator'ın kararı
+    @objc private func profileTapped() {
+        onProfileTapped?()
+    }
 }
 
 extension AccountListViewController: UICollectionViewDelegate {
-    // Seçimi görsel olarak temizler (detay ekranı Faz 5'te eklenecek)
+    // Seçimi görsel olarak temizler ve hangi hesabın seçildiğini Coordinator'a iletir
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        guard let account = dataSource.itemIdentifier(for: indexPath) else { return }
+        onAccountSelected?(account)
     }
 }

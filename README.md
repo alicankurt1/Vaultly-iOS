@@ -11,7 +11,7 @@ Fazların detayı ve kabul kriterleri için [ROADMAP.md](./ROADMAP.md) dosyasın
 | 2 | Compositional Layout + Diffable Data Source | `pattern/diffable-datasource` | ✅ Tamamlandı |
 | 3 | MVVM'e Ayırma | `pattern/mvvm` | ✅ Tamamlandı |
 | 4 | Protokol Tabanlı Dependency Injection | `pattern/dependency-injection` | ✅ Tamamlandı |
-| 5 | Coordinator Pattern | `pattern/coordinator` | ⬜ Planlandı |
+| 5 | Coordinator Pattern | `pattern/coordinator` | ✅ Tamamlandı |
 | 6 | Async/Await Networking + Durum Yönetimi | `pattern/async-networking` | ⬜ Planlandı |
 | 7 | Custom Transition | `pattern/custom-transition` | ⬜ Planlandı |
 | 8 | ViewModel Unit Testleri | `pattern/unit-tests` | ⬜ Planlandı |

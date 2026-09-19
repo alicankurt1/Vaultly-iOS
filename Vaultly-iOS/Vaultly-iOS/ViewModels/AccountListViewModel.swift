@@ -20,7 +20,7 @@ final class AccountListViewModel {
     // Somut servis sınıfı yerine protokol tutuluyor; test ve Faz 6'daki gerçek servis bu sayede enjekte edilebilir
     private let service: AccountServicing
 
-    init(service: AccountServicing = MockAccountService()) {
+    init(service: AccountServicing = SampleAccountService()) {
         self.service = service
     }
 

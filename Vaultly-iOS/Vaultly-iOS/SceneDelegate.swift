@@ -11,19 +11,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    // Coordinator sınıf içinde tutulmazsa deinit olur; referansı burada saklıyoruz
+    private var appCoordinator: Coordinator?
 
-    // Storyboard yok: pencereyi ve root controller'ı kod ile kurup gösterir
+    // Storyboard yok: pencereyi kurar, dependency/navigasyon kurulumunu Coordinator'a bırakır
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
-        // Composition root: hangi servisin hangi view model'e, hangi ekrana
-        // enjekte edildiği tek yerde, açıkça kuruluyor
-        let accountService = MockAccountService()
-        let accountListViewModel = AccountListViewModel(service: accountService)
-        let rootViewController = AccountListViewController(viewModel: accountListViewModel)
+        let navigationController = UINavigationController()
+        let coordinator = AppCoordinator(navigationController: navigationController)
+        appCoordinator = coordinator
+        coordinator.start()
 
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = UINavigationController(rootViewController: rootViewController)
+        window.rootViewController = navigationController
         window.makeKeyAndVisible()
         self.window = window
     }
