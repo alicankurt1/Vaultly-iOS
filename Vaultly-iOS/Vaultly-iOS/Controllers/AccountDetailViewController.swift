@@ -11,6 +11,9 @@ final class AccountDetailViewController: UIViewController {
 
     private let account: Account
 
+    // "İşlemler" butonuna basıldığında Coordinator'a hangi hesap için gidileceğini bildirir
+    var onShowTransactions: ((Account) -> Void)?
+
     // Coordinator dışında oluşturulmasın diye init'te doğrudan veri isteniyor
     init(account: Account) {
         self.account = account
@@ -53,7 +56,11 @@ final class AccountDetailViewController: UIViewController {
         ibanLabel.text = account.iban
         balanceLabel.text = account.formattedBalance
 
-        let stack = UIStackView(arrangedSubviews: [nameLabel, ibanLabel, balanceLabel])
+        let transactionsButton = UIButton(type: .system)
+        transactionsButton.setTitle("İşlemler", for: .normal)
+        transactionsButton.addTarget(self, action: #selector(transactionsTapped), for: .touchUpInside)
+
+        let stack = UIStackView(arrangedSubviews: [nameLabel, ibanLabel, balanceLabel, transactionsButton])
         stack.axis = .vertical
         stack.spacing = 12
         stack.alignment = .leading
@@ -65,5 +72,10 @@ final class AccountDetailViewController: UIViewController {
             stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32)
         ])
+    }
+
+    // Buton doğrudan push çağırmaz; hangi hesap için gidileceğini Coordinator'a bildirir
+    @objc private func transactionsTapped() {
+        onShowTransactions?(account)
     }
 }

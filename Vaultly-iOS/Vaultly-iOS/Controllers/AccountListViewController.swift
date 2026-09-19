@@ -20,6 +20,9 @@ final class AccountListViewController: UIViewController {
     // Hücre seçimini Coordinator'a bildirir; VC kendi push/present çağırmaz
     var onAccountSelected: ((Account) -> Void)?
 
+    // Profil butonuna basıldığını Coordinator'a bildirir; ekranın nasıl açılacağına (modal/push) VC karışmaz
+    var onProfileTapped: (() -> Void)?
+
     // Composition root (AppCoordinator) view model'i buradan enjekte eder;
     // default değer sadece hızlı deneme/önizleme için var
     init(viewModel: AccountListViewModel = AccountListViewModel()) {
@@ -59,6 +62,12 @@ final class AccountListViewController: UIViewController {
             barButtonSystemItem: .add,
             target: self,
             action: #selector(addAccountTapped)
+        )
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "person.circle"),
+            style: .plain,
+            target: self,
+            action: #selector(profileTapped)
         )
 
         view.addSubview(collectionView)
@@ -125,6 +134,11 @@ final class AccountListViewController: UIViewController {
     // Rastgele bir mock hesap eklenmesini view model'den ister
     @objc private func addAccountTapped() {
         viewModel.addRandomAccount()
+    }
+
+    // Profil ekranının nasıl açılacağı (modal + ayrı Coordinator) Coordinator'ın kararı
+    @objc private func profileTapped() {
+        onProfileTapped?()
     }
 }
 
