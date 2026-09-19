@@ -17,7 +17,10 @@ final class AccountListViewController: UIViewController {
 
     private let viewModel: AccountListViewModel
 
-    // Composition root (SceneDelegate) view model'i buradan enjekte eder;
+    // Hücre seçimini Coordinator'a bildirir; VC kendi push/present çağırmaz
+    var onAccountSelected: ((Account) -> Void)?
+
+    // Composition root (AppCoordinator) view model'i buradan enjekte eder;
     // default değer sadece hızlı deneme/önizleme için var
     init(viewModel: AccountListViewModel = AccountListViewModel()) {
         self.viewModel = viewModel
@@ -126,8 +129,10 @@ final class AccountListViewController: UIViewController {
 }
 
 extension AccountListViewController: UICollectionViewDelegate {
-    // Seçimi görsel olarak temizler (detay ekranı Faz 5'te eklenecek)
+    // Seçimi görsel olarak temizler ve hangi hesabın seçildiğini Coordinator'a iletir
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        guard let account = dataSource.itemIdentifier(for: indexPath) else { return }
+        onAccountSelected?(account)
     }
 }
