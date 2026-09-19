@@ -15,7 +15,19 @@ final class AccountListViewController: UIViewController {
         case main
     }
 
-    private let viewModel = AccountListViewModel()
+    private let viewModel: AccountListViewModel
+
+    // Composition root (SceneDelegate) view model'i buradan enjekte eder;
+    // default değer sadece hızlı deneme/önizleme için var
+    init(viewModel: AccountListViewModel = AccountListViewModel()) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    // Storyboard/xib üzerinden init desteklenmiyor
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeLayout())
