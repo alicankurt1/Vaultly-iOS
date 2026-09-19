@@ -16,8 +16,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
+        // Composition root: hangi servisin hangi view model'e, hangi ekrana
+        // enjekte edildiği tek yerde, açıkça kuruluyor
+        let accountService = MockAccountService()
+        let accountListViewModel = AccountListViewModel(service: accountService)
+        let rootViewController = AccountListViewController(viewModel: accountListViewModel)
+
         let window = UIWindow(windowScene: windowScene)
-        let rootViewController = AccountListViewController()
         window.rootViewController = UINavigationController(rootViewController: rootViewController)
         window.makeKeyAndVisible()
         self.window = window

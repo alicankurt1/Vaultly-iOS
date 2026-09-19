@@ -17,9 +17,16 @@ final class AccountListViewModel {
         didSet { onAccountsChanged?(accounts) }
     }
 
-    // Mock veri kaynağından hesapları yükler (Faz 6'da gerçek servisle değişecek)
+    // Somut servis sınıfı yerine protokol tutuluyor; test ve Faz 6'daki gerçek servis bu sayede enjekte edilebilir
+    private let service: AccountServicing
+
+    init(service: AccountServicing = MockAccountService()) {
+        self.service = service
+    }
+
+    // Hesapları enjekte edilen servisten yükler
     func loadAccounts() {
-        accounts = Account.mockAccounts
+        accounts = service.fetchAccounts()
     }
 
     // Listeye rastgele bir mock hesap ekler
