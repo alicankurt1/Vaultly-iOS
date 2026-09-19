@@ -53,6 +53,49 @@ final class AccountListViewController: UIViewController {
         collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: account)
     }
 
+    private let activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
+
+    private let emptyStateLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Henüz hesabınız yok"
+        label.textColor = .secondaryLabel
+        label.textAlignment = .center
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let errorMessageLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .secondaryLabel
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let retryButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Tekrar Dene", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    private lazy var errorStateStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [errorMessageLabel, retryButton])
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.alignment = .center
+        stack.isHidden = true
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+
     // Ekranı kurar, view model'e bağlanır ve ilk veriyi yükletir
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,22 +113,68 @@ final class AccountListViewController: UIViewController {
             action: #selector(profileTapped)
         )
 
+        retryButton.addTarget(self, action: #selector(retryTapped), for: .touchUpInside)
+
         view.addSubview(collectionView)
+        view.addSubview(activityIndicator)
+        view.addSubview(emptyStateLabel)
+        view.addSubview(errorStateStack)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+
+            emptyStateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emptyStateLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+
+            errorStateStack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            errorStateStack.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 32),
+            errorStateStack.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -32),
+            errorStateStack.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
 
         bindViewModel()
         viewModel.loadAccounts()
     }
 
-    // View model'in hesap listesi değiştikçe ekranı günceller
+    // View model'in hesap listesi ve durumu değiştikçe ekranı günceller
     private func bindViewModel() {
         viewModel.onAccountsChanged = { [weak self] accounts in
             self?.applySnapshot(with: accounts)
+        }
+        viewModel.onStateChanged = { [weak self] state in
+            self?.render(state)
+        }
+    }
+
+    // Loading/hata/boş/dolu durumlarından hangisi aktifse sadece onu gösterir
+    private func render(_ state: AccountListViewModel.State) {
+        switch state {
+        case .loading:
+            activityIndicator.startAnimating()
+            collectionView.isHidden = true
+            emptyStateLabel.isHidden = true
+            errorStateStack.isHidden = true
+        case .loaded:
+            activityIndicator.stopAnimating()
+            collectionView.isHidden = false
+            emptyStateLabel.isHidden = true
+            errorStateStack.isHidden = true
+        case .empty:
+            activityIndicator.stopAnimating()
+            collectionView.isHidden = true
+            emptyStateLabel.isHidden = false
+            errorStateStack.isHidden = true
+        case .error(let message):
+            activityIndicator.stopAnimating()
+            collectionView.isHidden = true
+            emptyStateLabel.isHidden = true
+            errorMessageLabel.text = message
+            errorStateStack.isHidden = false
         }
     }
 
@@ -139,6 +228,11 @@ final class AccountListViewController: UIViewController {
     // Profil ekranının nasıl açılacağı (modal + ayrı Coordinator) Coordinator'ın kararı
     @objc private func profileTapped() {
         onProfileTapped?()
+    }
+
+    // Hata durumunda kullanıcı isteğiyle yüklemeyi baştan dener
+    @objc private func retryTapped() {
+        viewModel.loadAccounts()
     }
 }
 

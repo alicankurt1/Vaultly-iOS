@@ -8,14 +8,47 @@
 import Foundation
 
 // ViewModel bu protokolü bilir, somut servis sınıfını bilmez;
-// Faz 6'da gerçek ağ servisi de bu protokole uyarak enjekte edilecek
+// async throws olması sayesinde gerçek bir ağ servisi de aynı imzayla enjekte edilebilir
 protocol AccountServicing {
-    func fetchAccounts() -> [Account]
+    func fetchAccounts() async throws -> [Account]
 }
 
-// Şimdilik örnek/gösterim verisiyle çalışan, gerçek servisin yerini tutan implementasyon
+// Gerçek bir backend olmadığı için ağ gecikmesini ve HTTP status code'unu simüle eder;
+// ViewModel'in loading/error/empty state'lerini gerçekçi koşullarda göstermesini sağlar
 struct SampleAccountService: AccountServicing {
-    func fetchAccounts() -> [Account] {
-        Account.mockAccounts
+    private let simulatedDelaySeconds: TimeInterval
+    private let simulateStatusCode: () -> Int
+
+    init(
+        simulatedDelaySeconds: TimeInterval = 1.2,
+        simulateStatusCode: @escaping () -> Int = SampleAccountService.randomStatusCode
+    ) {
+        self.simulatedDelaySeconds = simulatedDelaySeconds
+        self.simulateStatusCode = simulateStatusCode
+    }
+
+    func fetchAccounts() async throws -> [Account] {
+        try await Task.sleep(nanoseconds: UInt64(simulatedDelaySeconds * 1_000_000_000))
+
+        // Gerçek bir servette bu değer HTTPURLResponse.statusCode'dan gelir;
+        // burada aynı doğrulamayı çalıştırmak için status code'u kendimiz üretiyoruz
+        let statusCode = simulateStatusCode()
+        guard (200...299).contains(statusCode) else {
+            throw NetworkError(statusCode: statusCode)
+        }
+        return Account.mockAccounts
+    }
+
+    // Sadece Int.random üretiyor, hiçbir paylaşılan state'e dokunmuyor;
+    // default parametre değeri nonisolated bir bağlamda çözüldüğü için bu da nonisolated olmalı
+    // (bkz. SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor build ayarı)
+    // %75 başarı (200), kalan %25 üç farklı hata koduna eşit dağıtılıyor
+    private nonisolated static func randomStatusCode() -> Int {
+        switch Int.random(in: 0..<12) {
+        case 0..<9: return 200
+        case 9: return 401
+        case 10: return 404
+        default: return 500
+        }
     }
 }
