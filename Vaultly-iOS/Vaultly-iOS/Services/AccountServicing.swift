@@ -39,8 +39,11 @@ struct SampleAccountService: AccountServicing {
         return Account.mockAccounts
     }
 
+    // Sadece Int.random üretiyor, hiçbir paylaşılan state'e dokunmuyor;
+    // default parametre değeri nonisolated bir bağlamda çözüldüğü için bu da nonisolated olmalı
+    // (bkz. SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor build ayarı)
     // %75 başarı (200), kalan %25 üç farklı hata koduna eşit dağıtılıyor
-    private static func randomStatusCode() -> Int {
+    private nonisolated static func randomStatusCode() -> Int {
         switch Int.random(in: 0..<12) {
         case 0..<9: return 200
         case 9: return 401
