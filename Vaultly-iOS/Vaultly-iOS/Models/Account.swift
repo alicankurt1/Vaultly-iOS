@@ -7,7 +7,9 @@
 
 import Foundation
 
-struct Account {
+// Diffable snapshot Section/Item tiplerinin Sendable olmasını istiyor;
+// bu model UI thread'ine bağımlı olmadığı için MainActor izolasyonundan çıkarılıyor
+nonisolated struct Account: Hashable, Sendable {
     let id: UUID
     let name: String
     let iban: String
@@ -23,6 +25,21 @@ extension Account {
         Account(id: UUID(), name: "Dolar Hesabı", iban: "TR64 0001 2009 4520 0071 2345 67", balance: 3_250.40, currencyCode: "USD"),
         Account(id: UUID(), name: "Euro Hesabı", iban: "TR90 0010 3000 0000 0098 7654 32", balance: 980.10, currencyCode: "EUR")
     ]
+}
+
+extension Account {
+    // Diffable snapshot'a yeni bir hesap ekleme senaryosunu göstermek için rastgele mock üretir
+    static func randomMockAccount() -> Account {
+        let names = ["Altın Hesabı", "Tatil Bütçesi", "Kira Hesabı", "Yatırım Hesabı"]
+        let currencies = ["TRY", "USD", "EUR"]
+        return Account(
+            id: UUID(),
+            name: names.randomElement()!,
+            iban: "TR\(Int.random(in: 10...99)) 0000 0000 0000 0000 0000 00",
+            balance: Decimal(Double.random(in: 100...50_000)),
+            currencyCode: currencies.randomElement()!
+        )
+    }
 }
 
 extension Account {
