@@ -5,6 +5,7 @@
 //  Created by Alicank on 19.09.2026.
 //
 
+import Foundation
 import Testing
 @testable import Vaultly_iOS
 
@@ -100,18 +101,20 @@ struct AccountListViewModelTests {
 
 // loadAccounts() içindeki Task { } fire-and-forget çalıştığı için testin onu senkronize bir
 // şekilde bekleyebilmesi gerekiyor; kısa aralıklarla state'i kontrol edip zaman aşımında
-// testi anlamlı bir hatayla başarısız kılan küçük bir yardımcı
+// testi anlamlı bir hatayla başarısız kılan küçük bir yardımcı.
+// Deployment target iOS 15 olduğu için ContinuousClock/Duration (iOS 16+) yerine
+// Date + Task.sleep(nanoseconds:) kullanılıyor
 @MainActor
 private func waitUntil(
-    timeout: Duration = .seconds(2),
+    timeoutSeconds: TimeInterval = 2,
     _ condition: () -> Bool
 ) async throws {
-    let deadline = ContinuousClock.now + timeout
+    let deadline = Date().addingTimeInterval(timeoutSeconds)
     while !condition() {
-        if ContinuousClock.now >= deadline {
-            Issue.record("Beklenen koşul \(timeout) içinde gerçekleşmedi")
+        if Date() >= deadline {
+            Issue.record("Beklenen koşul \(timeoutSeconds) saniye içinde gerçekleşmedi")
             return
         }
-        try await Task.sleep(for: .milliseconds(10))
+        try await Task.sleep(nanoseconds: 10_000_000) // 10ms
     }
 }
