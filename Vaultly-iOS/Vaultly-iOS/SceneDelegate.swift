@@ -18,7 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // Composition root: hangi servisin hangi view model'e, hangi ekrana
         // enjekte edildiği tek yerde, açıkça kuruluyor
-        let accountService = MockAccountService()
+        let accountService = SampleAccountService()
         let accountListViewModel = AccountListViewModel(service: accountService)
         let rootViewController = AccountListViewController(viewModel: accountListViewModel)
 
