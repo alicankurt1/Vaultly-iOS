@@ -14,6 +14,9 @@ final class AccountDetailViewController: UIViewController {
     // "İşlemler" butonuna basıldığında Coordinator'a hangi hesap için gidileceğini bildirir
     var onShowTransactions: ((Account) -> Void)?
 
+    // "Para Gönder" butonuna basıldığında Coordinator'a hangi hesaptan transfer başlatılacağını bildirir
+    var onShowTransfer: ((Account) -> Void)?
+
     // Coordinator dışında oluşturulmasın diye init'te doğrudan veri isteniyor
     init(account: Account) {
         self.account = account
@@ -60,7 +63,11 @@ final class AccountDetailViewController: UIViewController {
         transactionsButton.setTitle("İşlemler", for: .normal)
         transactionsButton.addTarget(self, action: #selector(transactionsTapped), for: .touchUpInside)
 
-        let stack = UIStackView(arrangedSubviews: [nameLabel, ibanLabel, balanceLabel, transactionsButton])
+        let transferButton = UIButton(type: .system)
+        transferButton.setTitle("Para Gönder", for: .normal)
+        transferButton.addTarget(self, action: #selector(transferTapped), for: .touchUpInside)
+
+        let stack = UIStackView(arrangedSubviews: [nameLabel, ibanLabel, balanceLabel, transactionsButton, transferButton])
         stack.axis = .vertical
         stack.spacing = 12
         stack.alignment = .leading
@@ -77,5 +84,9 @@ final class AccountDetailViewController: UIViewController {
     // Buton doğrudan push çağırmaz; hangi hesap için gidileceğini Coordinator'a bildirir
     @objc private func transactionsTapped() {
         onShowTransactions?(account)
+    }
+
+    @objc private func transferTapped() {
+        onShowTransfer?(account)
     }
 }

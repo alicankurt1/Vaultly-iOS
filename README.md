@@ -13,5 +13,5 @@ Fazların detayı ve kabul kriterleri için [ROADMAP.md](./ROADMAP.md) dosyasın
 | 4 | Protokol Tabanlı Dependency Injection | `pattern/dependency-injection` | ✅ Tamamlandı |
 | 5 | Coordinator Pattern | `pattern/coordinator` | ✅ Tamamlandı |
 | 6 | Async/Await Networking + Durum Yönetimi | `pattern/async-networking` | ✅ Tamamlandı |
-| 7 | Custom Transition | `pattern/custom-transition` | ⬜ Planlandı |
+| 7 | Custom Transition | `pattern/custom-transition` | ✅ Tamamlandı |
 | 8 | ViewModel Unit Testleri | `pattern/unit-tests` | ⬜ Planlandı |

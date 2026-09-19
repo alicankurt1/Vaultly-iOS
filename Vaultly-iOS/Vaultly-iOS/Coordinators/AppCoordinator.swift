@@ -48,6 +48,9 @@ final class AppCoordinator: Coordinator {
         detailViewController.onShowTransactions = { [weak self] account in
             self?.showTransactions(for: account)
         }
+        detailViewController.onShowTransfer = { [weak self] account in
+            self?.showTransfer(for: account)
+        }
 
         accountDetailViewController = detailViewController
         navigationController.pushViewController(detailViewController, animated: true)
@@ -77,6 +80,33 @@ final class AppCoordinator: Coordinator {
         }
 
         navigationController.pushViewController(transactionDetailViewController, animated: true)
+    }
+
+    private func showTransfer(for account: Account) {
+        let transferViewController = TransferViewController(account: account)
+        transferViewController.onContinue = { [weak self] amount in
+            self?.showTransferConfirmation(account: account, amount: amount)
+        }
+
+        navigationController.pushViewController(transferViewController, animated: true)
+    }
+
+    // Onay kartı standart push/present yerine UIViewControllerAnimatedTransitioning ile
+    // alttan kayarak açılıyor (bkz. Transitions/) — VC bunu kendi transitioningDelegate'inde kuruyor,
+    // Coordinator sadece present çağrısını yapıyor
+    private func showTransferConfirmation(account: Account, amount: Decimal) {
+        let confirmationViewController = TransferConfirmationViewController(account: account, amount: amount)
+
+        confirmationViewController.onConfirm = { [weak self] in
+            self?.navigationController.dismiss(animated: true) {
+                self?.navigationController.popToRootViewController(animated: true)
+            }
+        }
+        confirmationViewController.onCancel = { [weak self] in
+            self?.navigationController.dismiss(animated: true)
+        }
+
+        navigationController.present(confirmationViewController, animated: true)
     }
 
     // Profil ekranını modal + kendi navigation stack'iyle, ayrı bir Coordinator olarak açar
